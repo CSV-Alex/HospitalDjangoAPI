@@ -76,7 +76,7 @@ class SolicitudPruebaRepo(ISolicitudPruebaRepo):
         SolicitudPruebaModel.objects.filter(id=r_id).delete()
 
 
-class ResultadoPrueba(IResultadoPruebaRepo):
+class ResultadoPruebaRepo(IResultadoPruebaRepo):
 
     @staticmethod
     def _to_entity(m: ResultadoPruebaModel) -> ResultadoPrueba:
