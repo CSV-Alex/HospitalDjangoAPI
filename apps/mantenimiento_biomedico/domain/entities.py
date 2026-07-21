@@ -4,7 +4,7 @@ from decimal import Decimal
 from typing import Optional
 from apps.mantenimiento_biomedico.domain.enums import (
     TipoEquipo, EstadoEq, EstadoRep,
-    EstadoSol, EstadoPresup, TipoInterv,
+    EstadoSol, TipoInterv,
 )
 
 
@@ -66,17 +66,6 @@ class Estimacion:
     proveedor: str = ""
     detalle: str = ""
     fecha: datetime = field(default_factory=datetime.now)
-
-
-@dataclass
-class Presup:
-    id: Optional[int] = None
-    estimacion: Optional[Estimacion] = None
-    estimacion_id: Optional[int] = None
-    num_doc: str = ""
-    monto: Decimal = Decimal("0.00")
-    fecha: Optional[date] = None
-    estado: EstadoPresup = EstadoPresup.PEND
 
 
 @dataclass

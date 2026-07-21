@@ -32,12 +32,6 @@ class EstadoSol(str, Enum):
     EN_PROC = "EN_PROC"
 
 
-class EstadoPresup(str, Enum):
-    PEND = "PEND"
-    APR = "APR"
-    RECHAZ = "RECHAZ"
-
-
 class TipoInterv(str, Enum):
     PREV = "PREV"
     CORR = "CORR"

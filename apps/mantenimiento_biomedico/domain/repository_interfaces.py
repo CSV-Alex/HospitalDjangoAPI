@@ -2,8 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 from apps.mantenimiento_biomedico.domain.entities import (
     EquipoBio, Reporte, Eval,
-    Solicitud, Estimacion, Presup,
-    Interv,
+    Solicitud, Estimacion, Interv,
 )
 
 
@@ -82,20 +81,6 @@ class IEstimacionRepo(ABC):
 
     @abstractmethod
     def find_all(self) -> List[Estimacion]:
-        pass
-
-
-class IPresupRepo(ABC):
-    @abstractmethod
-    def save(self, presupuesto: Presup) -> Presup:
-        pass
-
-    @abstractmethod
-    def find_by_id(self, presupuesto_id: int) -> Optional[Presup]:
-        pass
-
-    @abstractmethod
-    def find_all(self) -> List[Presup]:
         pass
 
 
