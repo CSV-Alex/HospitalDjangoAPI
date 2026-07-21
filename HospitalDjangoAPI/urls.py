@@ -21,6 +21,6 @@ Including another URLconf
 #from django.urls import path
 
 urlpatterns = [
-    # Uncomment the next line to enable the admin:
-    #path('admin/', admin.site.urls)
+    path('admin/', admin.site.urls),
+    # path('api/', include('atencion_ambulatoria.urls')),
 ]
