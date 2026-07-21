@@ -16,29 +16,3 @@ class EstadoEq(str, Enum):
     EN_REP = "EN_REP"
     FUERA = "FUERA"
     BAJA = "BAJA"
-
-
-class EstadoRep(str, Enum):
-    PEND = "PEND"
-    EN_EVAL = "EN_EVAL"
-    RES = "RES"
-    CANC = "CANC"
-
-
-class EstadoSol(str, Enum):
-    PEND = "PEND"
-    APR = "APR"
-    RECHAZ = "RECHAZ"
-    EN_PROC = "EN_PROC"
-
-
-class EstadoPresup(str, Enum):
-    PEND = "PEND"
-    APR = "APR"
-    RECHAZ = "RECHAZ"
-
-
-class TipoInterv(str, Enum):
-    PREV = "PREV"
-    CORR = "CORR"
-    CALIB = "CALIB"
