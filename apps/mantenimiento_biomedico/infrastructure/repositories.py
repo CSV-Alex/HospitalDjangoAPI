@@ -1,9 +1,10 @@
 from typing import List, Optional
 from apps.mantenimiento_biomedico.infrastructure.models import (
     EquipoBio as EquipoBioModel,
+    Reporte as ReporteModel,
 )
-from apps.mantenimiento_biomedico.domain.entities import EquipoBio
-from apps.mantenimiento_biomedico.domain.repository_interfaces import IEquipoRepo
+from apps.mantenimiento_biomedico.domain.entities import EquipoBio, Reporte
+from apps.mantenimiento_biomedico.domain.repository_interfaces import IEquipoRepo, IReporteRepo
 from apps.mantenimiento_biomedico.domain.enums import (
     TipoEquipo, EstadoEq,
 )
@@ -53,3 +54,38 @@ class EquipoRepo(IEquipoRepo):
             return self._to_entity(EquipoBioModel.objects.get(codigo=codigo))
         except EquipoBioModel.DoesNotExist:
             return None
+
+
+class ReporteRepo(IReporteRepo):
+
+    @staticmethod
+    def _to_entity(m: ReporteModel) -> Reporte:
+        return Reporte(
+            id=m.id, equipo_id=m.equipo_id,
+            equipo_codigo=m.equipo.codigo,
+            equipo_nombre=m.equipo.nombre,
+            descripcion_falla=m.descripcion_falla,
+            fecha_reporte=m.fecha_reporte,
+        )
+
+    def save(self, r: Reporte) -> Reporte:
+        m = ReporteModel.objects.get(id=r.id) if r.id else ReporteModel()
+        m.equipo_id = r.equipo_id
+        m.descripcion_falla = r.descripcion_falla
+        m.save()
+        return self._to_entity(m)
+
+    def find_by_id(self, r_id: int) -> Optional[Reporte]:
+        try:
+            return self._to_entity(ReporteModel.objects.select_related('equipo').get(id=r_id))
+        except ReporteModel.DoesNotExist:
+            return None
+
+    def find_all(self) -> List[Reporte]:
+        return [
+            self._to_entity(m)
+            for m in ReporteModel.objects.select_related('equipo').all()
+        ]
+
+    def delete(self, r_id: int) -> None:
+        ReporteModel.objects.filter(id=r_id).delete()

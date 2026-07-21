@@ -20,3 +20,20 @@ class EquipoBio(models.Model):
 
     def __str__(self):
         return f"{self.codigo} - {self.nombre}"
+
+
+class Reporte(models.Model):
+    equipo = models.ForeignKey(
+        EquipoBio, on_delete=models.CASCADE,
+        related_name='reportes', db_column='equipo_biomedico_id',
+    )
+    descripcion_falla = models.TextField(db_column='descripcion_falla')
+    fecha_reporte = models.DateTimeField(auto_now_add=True, db_column='fecha_reporte')
+
+    class Meta:
+        db_table = 'mb_reporte_equipo'
+        verbose_name = 'Reporte de Equipo'
+        verbose_name_plural = 'Reportes de Equipos'
+
+    def __str__(self):
+        return f"Reporte #{self.id} - {self.equipo.codigo}"
