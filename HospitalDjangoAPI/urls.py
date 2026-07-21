@@ -22,5 +22,5 @@ Including another URLconf
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('api/', include('atencion_ambulatoria.urls')),
+    path('api/', include('atencion_ambulatoria.urls')),
 ]
