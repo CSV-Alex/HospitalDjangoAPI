@@ -29,10 +29,6 @@ class PacienteView(APIView):
         p = _pac_repo.save(PacienteSer(data=request.data).create())
         return Response(PacienteSer(p).data, status=201)
 
-    def delete(self, request, pk):
-        _pac_repo.delete(pk)
-        return Response(status=204)
-
 
 class SolicitudPruebaView(APIView):
 
@@ -45,10 +41,6 @@ class SolicitudPruebaView(APIView):
     def post(self, request):
         s = _sol_repo.save(SolicitudPruebaSer(data=request.data).create())
         return Response(SolicitudPruebaSer(s).data, status=201)
-
-    def delete(self, request, pk):
-        _sol_repo.delete(pk)
-        return Response(status=204)
     
 
 class ResultadoPruebaView(APIView):
@@ -62,7 +54,3 @@ class ResultadoPruebaView(APIView):
     def post(self, request):
         r = _res_repo.save(ResultadoPruebaSer(data=request.data).create())
         return Response(ResultadoPruebaSer(r).data, status=201)
-
-    def delete(self, request, pk):
-        _res_repo.delete(pk)
-        return Response(status=204)

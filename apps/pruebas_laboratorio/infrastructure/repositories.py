@@ -100,3 +100,6 @@ class ResultadoPruebaRepo(IResultadoPruebaRepo):
 
     def find_all(self) -> List[ResultadoPrueba]:
         return [self._to_entity(m) for m in ResultadoPruebaModel.objects.all()]
+
+    def delete(self, ev_id: int) -> None:
+        ResultadoPruebaModel.objects.filter(id=ev_id).delete()

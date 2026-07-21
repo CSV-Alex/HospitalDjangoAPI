@@ -17,7 +17,6 @@ class Paciente:
 class SolicitudPrueba:
     id: Optional[int] = None
     paciente: Optional[Paciente] = None
-    paciente_id: Optional[int] = None
     tipo_prueba: str = ""
     fecha_solicitud: datetime = field(default_factory=datetime.now)
     estado: str = "Pendiente"
@@ -26,7 +25,6 @@ class SolicitudPrueba:
 class ResultadoPrueba:
     id: Optional[int] = None
     solicitud: Optional[SolicitudPrueba] = None
-    solicitud_id: Optional[int] = None
     resultado: str = ""
     fecha_resultado: datetime = field(default_factory=datetime.now)
 

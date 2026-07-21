@@ -20,7 +20,6 @@ class Paciente(models.Model):
 class SolicitudPrueba(models.Model):
     id = models.AutoField(primary_key=True)
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='solicitudes_prueba')
-    paciente_id = models.IntegerField()
     tipo_prueba = models.CharField(max_length=100)
     fecha_solicitud = models.DateTimeField(auto_now_add=True)
     estado = models.CharField(max_length=30, default='Pendiente')
@@ -37,7 +36,6 @@ class SolicitudPrueba(models.Model):
 class ResultadoPrueba(models.Model):
     id = models.AutoField(primary_key=True)
     solicitud = models.ForeignKey(SolicitudPrueba, on_delete=models.CASCADE, related_name='resultados_prueba')
-    solicitud_id = models.IntegerField()
     resultado = models.TextField()
     fecha_resultado = models.DateTimeField(auto_now_add=True)
 
