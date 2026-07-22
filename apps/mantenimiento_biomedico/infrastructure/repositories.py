@@ -66,12 +66,16 @@ class ReporteRepo(IReporteRepo):
             equipo_nombre=m.equipo.nombre,
             descripcion_falla=m.descripcion_falla,
             fecha_reporte=m.fecha_reporte,
+            isEvaluated=m.isEvaluated,
+            isRepairable=m.isRepairable,
         )
 
     def save(self, r: Reporte) -> Reporte:
         m = ReporteModel.objects.get(id=r.id) if r.id else ReporteModel()
         m.equipo_id = r.equipo_id
         m.descripcion_falla = r.descripcion_falla
+        m.isEvaluated = r.isEvaluated
+        m.isRepairable = r.isRepairable
         m.save()
         return self._to_entity(m)
 

@@ -29,3 +29,5 @@ class Reporte:
     equipo_nombre: str = ""
     descripcion_falla: str = ""
     fecha_reporte: Optional[datetime] = None
+    isEvaluated: bool = False
+    isRepairable: bool = False

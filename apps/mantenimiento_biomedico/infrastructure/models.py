@@ -25,10 +25,12 @@ class EquipoBio(models.Model):
 class Reporte(models.Model):
     equipo = models.ForeignKey(
         EquipoBio, on_delete=models.CASCADE,
-        related_name='reportes', db_column='equipo_biomedico_id',
+        related_name='reportes', db_column='equipo_id',
     )
-    descripcion_falla = models.TextField(db_column='descripcion_falla')
+    descripcion_falla = models.TextField(db_column='descripcion')
     fecha_reporte = models.DateTimeField(auto_now_add=True, db_column='fecha_reporte')
+    isEvaluated = models.BooleanField(default=False, db_column='is_evaluated')
+    isRepairable = models.BooleanField(default=False, db_column='is_repairable')
 
     class Meta:
         db_table = 'mb_reporte_equipo'
