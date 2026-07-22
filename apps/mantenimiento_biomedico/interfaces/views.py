@@ -110,3 +110,45 @@ class ReporteView(APIView):
             return Response({"error": "Reporte no encontrado"}, status=404)
         _reporte_repo.delete(pk)
         return Response(status=204)
+
+
+class EvaluarView(APIView):
+
+    def patch(self, request, pk):
+        from apps.mantenimiento_biomedico.domain.entities import Reporte
+
+        r = _reporte_repo.find_by_id(pk)
+        if not r:
+            return Response({"error": "Reporte no encontrado"}, status=404)
+
+        isRepairable = request.data.get('isRepairable')
+        if isRepairable is None:
+            return Response({"error": "El campo 'isRepairable' es requerido"}, status=400)
+
+        if not isinstance(isRepairable, bool):
+            return Response({"error": "El campo 'isRepairable' debe ser un booleano"}, status=400)
+
+        updated = Reporte(
+            id=r.id, equipo_id=r.equipo_id,
+            equipo_codigo=r.equipo_codigo, equipo_nombre=r.equipo_nombre,
+            descripcion_falla=r.descripcion_falla, fecha_reporte=r.fecha_reporte,
+            isEvaluated=True, isRepairable=isRepairable,
+        )
+        saved = _reporte_repo.save(updated)
+        return Response(ReporteSer(saved).data)
+
+
+class RepararView(APIView):
+
+    def patch(self, request, pk):
+        r = _reporte_repo.find_by_id(pk)
+        if not r:
+            return Response({"error": "Reporte no encontrado"}, status=404)
+
+        if not r.isEvaluated:
+            return Response({"error": "El reporte debe ser evaluado primero"}, status=400)
+
+        if not r.isRepairable:
+            return Response({"error": "El reporte no es reparable, no se puede reparar"}, status=400)
+
+        return Response({"mensaje": "Reparación completada exitosamente"})

@@ -33,3 +33,5 @@ class ReporteSer(serializers.Serializer):
     equipo_nombre = serializers.CharField(read_only=True)
     descripcion_falla = serializers.CharField()
     fecha_reporte = serializers.DateTimeField(read_only=True)
+    isEvaluated = serializers.BooleanField(read_only=True, default=False)
+    isRepairable = serializers.BooleanField(read_only=True, default=False)
