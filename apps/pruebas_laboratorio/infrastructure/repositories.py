@@ -53,14 +53,16 @@ class SolicitudPruebaRepo(ISolicitudPruebaRepo):
         return SolicitudPrueba(
             id=m.id, paciente_id=m.paciente_id,
             tipo_prueba=m.tipo_prueba, fecha_solicitud=m.fecha_solicitud,
-            estado=m.estado
+            pagado=m.pagado, costo=m.costo
         )
 
     def save(self, r: SolicitudPrueba) -> SolicitudPrueba:
         m = SolicitudPruebaModel.objects.get(id=r.id) if r.id else SolicitudPruebaModel()
         m.paciente_id = r.paciente_id
         m.tipo_prueba = r.tipo_prueba
-        m.estado = r.estado
+        m.fecha_solicitud = r.fecha_solicitud
+        m.pagado = r.pagado
+        m.costo = r.costo
         return self._to_entity(m)
 
     def find_by_id(self, r_id: int) -> Optional[SolicitudPrueba]:

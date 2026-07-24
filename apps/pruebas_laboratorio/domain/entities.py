@@ -19,7 +19,8 @@ class SolicitudPrueba:
     paciente: Optional[Paciente] = None
     tipo_prueba: str = ""
     fecha_solicitud: datetime = field(default_factory=datetime.now)
-    estado: str = "Pendiente"
+    pagado: bool = False
+    costo: Optional[Decimal] = None
 
 @dataclass
 class ResultadoPrueba:

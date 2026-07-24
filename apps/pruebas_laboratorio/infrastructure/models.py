@@ -22,7 +22,8 @@ class SolicitudPrueba(models.Model):
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='solicitudes_prueba')
     tipo_prueba = models.CharField(max_length=100)
     fecha_solicitud = models.DateTimeField(auto_now_add=True)
-    estado = models.CharField(max_length=30, default='Pendiente')
+    pagado = models.BooleanField(default=False)
+    costo = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     class Meta:
         db_table = 'mb_solicitud_prueba'
