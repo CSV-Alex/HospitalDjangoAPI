@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+from apps.mantenimiento_biomedico.domain.entities import EquipoBio, Reporte
+from apps.mantenimiento_biomedico.domain.enums import EstadoEq, TipoEquipo, EstadoReporte
 from apps.mantenimiento_biomedico.infrastructure.repositories import EquipoRepo, ReporteRepo
 from apps.mantenimiento_biomedico.interfaces.serializers import EquipoSer, ReporteSer
 
@@ -21,9 +23,6 @@ class EquipoView(APIView):
         return Response([EquipoSer(e).data for e in _repo.find_all()])
 
     def post(self, request):
-        from apps.mantenimiento_biomedico.domain.entities import EquipoBio
-        from apps.mantenimiento_biomedico.domain.enums import EstadoEq, TipoEquipo
-
         codigo = request.data.get('codigo')
         if not codigo:
             return Response({"error": "El campo 'codigo' es requerido"}, status=400)
@@ -74,8 +73,6 @@ class ReporteView(APIView):
         return Response([ReporteSer(r).data for r in _reporte_repo.find_all()])
 
     def post(self, request):
-        from apps.mantenimiento_biomedico.domain.entities import Reporte
-
         equipo_id = request.data.get('equipo_id')
         if not equipo_id:
             return Response({"error": "El campo 'equipo_id' es requerido"}, status=400)
@@ -86,8 +83,6 @@ class ReporteView(APIView):
         descripcion_falla = request.data.get('descripcion_falla')
         if not descripcion_falla:
             return Response({"error": "El campo 'descripcion_falla' es requerido"}, status=400)
-
-        from apps.mantenimiento_biomedico.domain.enums import EstadoReporte
 
         r = Reporte(
             equipo_id=equipo_id,
@@ -104,9 +99,6 @@ class ReporteView(APIView):
 class EvaluarView(APIView):
 
     def patch(self, request, pk):
-        from apps.mantenimiento_biomedico.domain.entities import Reporte
-        from apps.mantenimiento_biomedico.domain.enums import EstadoReporte
-
         r = _reporte_repo.find_by_id(pk)
         if not r:
             return Response({"error": "Reporte no encontrado"}, status=404)
@@ -134,9 +126,6 @@ class EvaluarView(APIView):
 class RepararView(APIView):
 
     def patch(self, request, pk):
-        from apps.mantenimiento_biomedico.domain.entities import Reporte
-        from apps.mantenimiento_biomedico.domain.enums import EstadoReporte
-
         r = _reporte_repo.find_by_id(pk)
         if not r:
             return Response({"error": "Reporte no encontrado"}, status=404)
@@ -165,3 +154,22 @@ class RepararView(APIView):
         )
         saved = _reporte_repo.save(updated)
         return Response(ReporteSer(saved).data)
+
+
+class ReemplazoView(APIView):
+
+    def patch(self, request, pk):
+        eq = _repo.find_by_id(pk)
+        if not eq:
+            return Response({"error": "Equipo no encontrado"}, status=404)
+
+        updated = EquipoBio(
+            id=eq.id, codigo=eq.codigo, nombre=eq.nombre,
+            tipo=eq.tipo, fabricante=eq.fabricante,
+            modelo=eq.modelo, num_serie=eq.num_serie,
+            ubicacion=eq.ubicacion, fecha_adq=eq.fecha_adq,
+            fecha_ult_calib=eq.fecha_ult_calib,
+            estado=EstadoEq.REEMP,
+        )
+        saved = _repo.save(updated)
+        return Response(EquipoSer(saved).data)

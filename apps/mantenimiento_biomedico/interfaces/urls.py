@@ -1,5 +1,7 @@
 from django.urls import path
-from apps.mantenimiento_biomedico.interfaces.views import EquipoView, ReporteView, EvaluarView, RepararView
+from apps.mantenimiento_biomedico.interfaces.views import (
+    EquipoView, ReporteView, EvaluarView, RepararView, ReemplazoView,
+)
 
 app_name = 'mantenimiento_biomedico'
 
@@ -10,4 +12,5 @@ urlpatterns = [
     path('reportes/<int:pk>/', ReporteView.as_view(), name='rep_detail'),
     path('reportes/<int:pk>/evaluar/', EvaluarView.as_view(), name='rep_evaluar'),
     path('reportes/<int:pk>/reparar/', RepararView.as_view(), name='rep_reparar'),
+    path('equipos/<int:pk>/reemplazo/', ReemplazoView.as_view(), name='eq_reemplazo'),
 ]
