@@ -62,13 +62,6 @@ class EquipoView(APIView):
         except Exception as e:
             return Response({"error": f"Error al guardar: {str(e)}"}, status=500)
 
-    def delete(self, request, pk):
-        eq = _repo.find_by_id(pk)
-        if not eq:
-            return Response({"error": "Equipo no encontrado"}, status=404)
-        _repo.delete(pk)
-        return Response(status=204)
-
 
 class ReporteView(APIView):
 
@@ -107,35 +100,32 @@ class ReporteView(APIView):
         except Exception as e:
             return Response({"error": f"Error al guardar: {str(e)}"}, status=500)
 
-    def delete(self, request, pk):
-        r = _reporte_repo.find_by_id(pk)
-        if not r:
-            return Response({"error": "Reporte no encontrado"}, status=404)
-        _reporte_repo.delete(pk)
-        return Response(status=204)
-
 
 class EvaluarView(APIView):
 
     def patch(self, request, pk):
         from apps.mantenimiento_biomedico.domain.entities import Reporte
+        from apps.mantenimiento_biomedico.domain.enums import EstadoReporte
 
         r = _reporte_repo.find_by_id(pk)
         if not r:
             return Response({"error": "Reporte no encontrado"}, status=404)
 
-        isRepairable = request.data.get('isRepairable')
-        if isRepairable is None:
-            return Response({"error": "El campo 'isRepairable' es requerido"}, status=400)
+        req_reparar = request.data.get('req_reparar')
+        if req_reparar is None:
+            return Response({"error": "El campo 'req_reparar' es requerido"}, status=400)
 
-        if not isinstance(isRepairable, bool):
-            return Response({"error": "El campo 'isRepairable' debe ser un booleano"}, status=400)
+        if not isinstance(req_reparar, bool):
+            return Response({"error": "El campo 'req_reparar' debe ser un booleano"}, status=400)
+
+        nuevo_estado = EstadoReporte.EVALUADO if req_reparar else EstadoReporte.SIN_ACCION
 
         updated = Reporte(
             id=r.id, equipo_id=r.equipo_id,
             equipo_codigo=r.equipo_codigo, equipo_nombre=r.equipo_nombre,
             descripcion_falla=r.descripcion_falla, fecha_reporte=r.fecha_reporte,
-            isEvaluated=True, isRepairable=isRepairable,
+            isEvaluated=True, isRepairable=req_reparar,
+            estado=nuevo_estado,
         )
         saved = _reporte_repo.save(updated)
         return Response(ReporteSer(saved).data)
