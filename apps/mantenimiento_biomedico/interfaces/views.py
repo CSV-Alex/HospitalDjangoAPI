@@ -169,7 +169,7 @@ class ReemplazoView(APIView):
             modelo=eq.modelo, num_serie=eq.num_serie,
             ubicacion=eq.ubicacion, fecha_adq=eq.fecha_adq,
             fecha_ult_calib=eq.fecha_ult_calib,
-            estado=EstadoEq.REEMP,
+            estado=EstadoEq.BAJA,
         )
         saved = _repo.save(updated)
         return Response(EquipoSer(saved).data)

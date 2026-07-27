@@ -46,9 +46,6 @@ class EquipoRepo(IEquipoRepo):
     def find_all(self) -> List[EquipoBio]:
         return [self._to_entity(m) for m in EquipoBioModel.objects.all()]
 
-    def delete(self, eq_id: int) -> None:
-        EquipoBioModel.objects.filter(id=eq_id).delete()
-
     def find_by_codigo(self, codigo: str) -> Optional[EquipoBio]:
         try:
             return self._to_entity(EquipoBioModel.objects.get(codigo=codigo))
@@ -92,6 +89,3 @@ class ReporteRepo(IReporteRepo):
             self._to_entity(m)
             for m in ReporteModel.objects.select_related('equipo').all()
         ]
-
-    def delete(self, r_id: int) -> None:
-        ReporteModel.objects.filter(id=r_id).delete()

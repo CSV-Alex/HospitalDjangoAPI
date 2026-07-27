@@ -17,19 +17,11 @@ class IEquipoRepo(ABC):
         pass
 
     @abstractmethod
-    def delete(self, equipo_id: int) -> None:
-        pass
-
-    @abstractmethod
     def find_by_codigo(self, codigo: str) -> Optional[EquipoBio]:
         pass
 
 
 class IReporteRepo(ABC):
-    @abstractmethod
-    def save(self, reporte: Reporte) -> Reporte:
-        pass
-
     @abstractmethod
     def find_by_id(self, reporte_id: int) -> Optional[Reporte]:
         pass
