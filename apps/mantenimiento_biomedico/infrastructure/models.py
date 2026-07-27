@@ -29,6 +29,7 @@ class Reporte(models.Model):
     )
     descripcion_falla = models.TextField(db_column='descripcion')
     fecha_reporte = models.DateTimeField(auto_now_add=True, db_column='fecha_reporte')
+    estado = models.CharField(max_length=20, default='reportado')
     isEvaluated = models.BooleanField(default=False, db_column='is_evaluated')
     isRepairable = models.BooleanField(default=False, db_column='is_repairable')
 

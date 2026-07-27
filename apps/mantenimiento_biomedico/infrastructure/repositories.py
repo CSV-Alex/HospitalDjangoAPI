@@ -6,7 +6,7 @@ from apps.mantenimiento_biomedico.infrastructure.models import (
 from apps.mantenimiento_biomedico.domain.entities import EquipoBio, Reporte
 from apps.mantenimiento_biomedico.domain.repository_interfaces import IEquipoRepo, IReporteRepo
 from apps.mantenimiento_biomedico.domain.enums import (
-    TipoEquipo, EstadoEq,
+    TipoEquipo, EstadoEq, EstadoReporte,
 )
 
 
@@ -68,12 +68,14 @@ class ReporteRepo(IReporteRepo):
             fecha_reporte=m.fecha_reporte,
             isEvaluated=m.isEvaluated,
             isRepairable=m.isRepairable,
+            estado=EstadoReporte(m.estado),
         )
 
     def save(self, r: Reporte) -> Reporte:
         m = ReporteModel.objects.get(id=r.id) if r.id else ReporteModel()
         m.equipo_id = r.equipo_id
         m.descripcion_falla = r.descripcion_falla
+        m.estado = r.estado.value
         m.isEvaluated = r.isEvaluated
         m.isRepairable = r.isRepairable
         m.save()

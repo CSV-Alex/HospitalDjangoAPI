@@ -16,3 +16,11 @@ class EstadoEq(str, Enum):
     EN_REP = "EN_REP"
     FUERA = "FUERA"
     BAJA = "BAJA"
+
+
+class EstadoReporte(str, Enum):
+    REPORTADO = "reportado"
+    EVALUADO = "evaluado"
+    REPARADO = "reparado"
+    REEMPLAZADO = "reemplazado"
+    SIN_ACCION = "sin_accion"

@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Optional
 from apps.mantenimiento_biomedico.domain.enums import (
-    TipoEquipo, EstadoEq,
+    TipoEquipo, EstadoEq, EstadoReporte,
 )
 
 
@@ -31,3 +31,4 @@ class Reporte:
     fecha_reporte: Optional[datetime] = None
     isEvaluated: bool = False
     isRepairable: bool = False
+    estado: EstadoReporte = EstadoReporte.REPORTADO

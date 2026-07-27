@@ -94,9 +94,12 @@ class ReporteView(APIView):
         if not descripcion_falla:
             return Response({"error": "El campo 'descripcion_falla' es requerido"}, status=400)
 
+        from apps.mantenimiento_biomedico.domain.enums import EstadoReporte
+
         r = Reporte(
             equipo_id=equipo_id,
             descripcion_falla=descripcion_falla,
+            estado=EstadoReporte.REPORTADO,
         )
         try:
             saved = _reporte_repo.save(r)
