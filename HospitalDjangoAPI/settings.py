@@ -38,9 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    # 'atencion_ambulatoria',
     'apps.admision_hospitalizacion',
     'apps.mantenimiento_biomedico',
+    'apps.consultorio_externo',
 ]
 
 # Middleware framework
@@ -137,3 +137,8 @@ REST_FRAMEWORK = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Crear carpeta de logs si no existe
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR, exist_ok=True)

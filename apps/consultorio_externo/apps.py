@@ -1,6 +1,5 @@
 from django.apps import AppConfig
 
-
-class AtencionAmbulatoriaConfig(AppConfig):
+class ConsultorioExternoConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.atencion_ambulatoria'
+    name = 'apps.consultorio_externo'
