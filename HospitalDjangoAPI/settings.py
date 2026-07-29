@@ -142,3 +142,67 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGS_DIR = os.path.join(BASE_DIR, 'logs')
 if not os.path.exists(LOGS_DIR):
     os.makedirs(LOGS_DIR, exist_ok=True)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{levelname}] {asctime} {name} - {message}',
+            'style': '{',
+            'datefmt': '%d/%m/%Y %H:%M:%S',
+        },
+        'simple': {
+            'format': '[{levelname}] {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file_rabbitmq': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGS_DIR, 'rabbitmq_consumer.log'),
+            'maxBytes': 10485760,  # 10MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+        'file_consultorio': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOGS_DIR, 'consultorio_externo.log'),
+            'maxBytes': 10485760,  # 10MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'apps.consultorio_externo': {
+            'handlers': ['console', 'file_consultorio'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'pika': {
+            'handlers': ['console', 'file_rabbitmq'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
+
+# RabbitMQ configuracion
+
+RABBITMQ_HOST = os.environ.get('RABBITMQ_HOST', 'localhost')
+RABBITMQ_PORT = int(os.environ.get('RABBITMQ_PORT', 5672))
+RABBITMQ_USER = os.environ.get('RABBITMQ_USER', 'guest')
+RABBITMQ_PASSWORD = os.environ.get('RABBITMQ_PASSWORD', 'guest')
+RABBITMQ_VHOST = os.environ.get('RABBITMQ_VHOST', '/')
+
+# Colas de RabbitMQ
+RABBITMQ_QUEUE_SOLICITUD_CONSULTORIO = 'solicitud_consultorio'
+RABBITMQ_QUEUE_EVENTO_CONSULTORIO = 'evento_consultorio_completado'
