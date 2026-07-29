@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'apps.atencion_ambulatoria.apps.AtencionAmbulatoriaConfig',
+    # 'atencion_ambulatoria',
+    'apps.admision_hospitalizacion',
+    'apps.mantenimiento_biomedico',
 ]
 
 # Middleware framework
@@ -80,11 +82,11 @@ WSGI_APPLICATION = 'HospitalDjangoAPI.wsgi.application'
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'hospital_db',
-#         'USER': 'postgres',
-#         'PASSWORD': 'password',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
+#         'NAME': os.environ.get('DB_NAME', 'hospital_db'),
+#         'USER': os.environ.get('DB_USER', 'postgres'),
+#         'PASSWORD': os.environ.get('DB_PASSWORD', 'postgres'),
+#         'HOST': os.environ.get('DB_HOST', 'localhost'),
+#         'PORT': os.environ.get('DB_PORT', '5432'),
 #     }
 # }
 
@@ -94,6 +96,7 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
