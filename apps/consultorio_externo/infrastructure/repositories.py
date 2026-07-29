@@ -9,29 +9,20 @@ from ..models import Paciente as PacienteORM
 
 logger = logging.getLogger(__name__)
 
-
 class PacienteRepositoryDjango(PacienteRepository):
-    """Implementación del Repositorio usando Django ORM."""
     
     def save(self, paciente: Paciente) -> None:
-        """Guardar o actualizar un Paciente en la base de datos.
-        
-        Si el paciente ya existe (por ID), lo actualiza.
-        Si no existe, crea uno nuevo.
-        """
         try:
-            # Buscar si ya existe por numero_historia_clinica
             paciente_orm, creado = PacienteORM.objects.get_or_create(
                 numero_historia_clinica=paciente.numero_historia_clinica.valor,
                 defaults={
-                    'dni': '',  # Por ahora vacío, puede rellenarse desde Bonita
+                    'dni': '',
                     'nombre_completo': paciente.nombre_completo.valor,
                     'fecha_nacimiento': paciente.fecha_nacimiento.valor,
                     'necesita_examen': paciente.necesita_examen.valor,
                 }
             )
             
-            # Si ya existía, actualizar
             if not creado:
                 paciente_orm.nombre_completo = paciente.nombre_completo.valor
                 paciente_orm.fecha_nacimiento = paciente.fecha_nacimiento.valor
@@ -39,18 +30,17 @@ class PacienteRepositoryDjango(PacienteRepository):
                 paciente_orm.save()
             
             logger.info(
-                f"✅ Paciente guardado: {paciente.numero_historia_clinica.valor} "
+                f"Paciente guardado: {paciente.numero_historia_clinica.valor} "
                 f"({paciente.nombre_completo.valor})"
             )
         
         except Exception as e:
-            logger.error(f"❌ Error al guardar Paciente: {str(e)}", exc_info=True)
+            logger.error(f"Error al guardar Paciente: {str(e)}", exc_info=True)
             raise RepositoryException(
                 f"Error al guardar Paciente en BD: {str(e)}"
             )
     
     def find_by_id(self, paciente_id: str) -> Optional[Paciente]:
-        """Buscar un Paciente por su ID (número de historia clínica)."""
         try:
             paciente_orm = PacienteORM.objects.get(id=paciente_id)
             return self._orm_to_entity(paciente_orm)
@@ -66,7 +56,6 @@ class PacienteRepositoryDjango(PacienteRepository):
     def find_by_numero_historia_clinica(
         self, numero_historia: NumeroHistoriaClinica
     ) -> Optional[Paciente]:
-        """Buscar un Paciente por número de historia clínica."""
         try:
             paciente_orm = PacienteORM.objects.get(
                 numero_historia_clinica=numero_historia.valor
@@ -85,7 +74,6 @@ class PacienteRepositoryDjango(PacienteRepository):
             raise RepositoryException(f"Error al buscar Paciente: {str(e)}")
     
     def find_all(self) -> List[Paciente]:
-        """Obtener todos los Pacientes."""
         try:
             pacientes_orm = PacienteORM.objects.all()
             return [self._orm_to_entity(p) for p in pacientes_orm]
@@ -95,7 +83,6 @@ class PacienteRepositoryDjango(PacienteRepository):
             raise RepositoryException(f"Error al obtener Pacientes: {str(e)}")
     
     def update(self, paciente: Paciente) -> None:
-        """Actualizar un Paciente existente."""
         try:
             paciente_orm = PacienteORM.objects.get(
                 numero_historia_clinica=paciente.numero_historia_clinica.valor
@@ -106,7 +93,7 @@ class PacienteRepositoryDjango(PacienteRepository):
             paciente_orm.necesita_examen = paciente.necesita_examen.valor
             paciente_orm.save()
             
-            logger.info(f"✅ Paciente actualizado: {paciente.numero_historia_clinica.valor}")
+            logger.info(f"Paciente actualizado: {paciente.numero_historia_clinica.valor}")
         
         except PacienteORM.DoesNotExist:
             logger.error(f"Paciente no encontrado para actualizar")
@@ -117,10 +104,9 @@ class PacienteRepositoryDjango(PacienteRepository):
             raise RepositoryException(f"Error al actualizar Paciente: {str(e)}")
     
     def delete(self, paciente_id: str) -> None:
-        """Eliminar un Paciente."""
         try:
             PacienteORM.objects.filter(numero_historia_clinica=paciente_id).delete()
-            logger.info(f"✅ Paciente eliminado: {paciente_id}")
+            logger.info(f"Paciente eliminado: {paciente_id}")
         
         except Exception as e:
             logger.error(f"Error al eliminar Paciente: {str(e)}", exc_info=True)
@@ -128,7 +114,6 @@ class PacienteRepositoryDjango(PacienteRepository):
     
     @staticmethod
     def _orm_to_entity(paciente_orm: PacienteORM) -> Paciente:
-        """Convertir modelo ORM a Entidad del dominio."""
         from ..domain.value_objects import (
             NumeroHistoriaClinica,
             NombreCompleto,
