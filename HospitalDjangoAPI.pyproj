@@ -30,6 +30,13 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="apps\atencion_ambulatoria\admin.py" />
+    <Compile Include="apps\atencion_ambulatoria\apps.py" />
+    <Compile Include="apps\atencion_ambulatoria\models.py" />
+    <Compile Include="apps\atencion_ambulatoria\serializers.py" />
+    <Compile Include="apps\atencion_ambulatoria\services.py" />
+    <Compile Include="apps\atencion_ambulatoria\urls.py" />
+    <Compile Include="apps\atencion_ambulatoria\views.py" />
     <Compile Include="manage.py" />
     <Compile Include="HospitalDjangoAPI\__init__.py" />
     <Compile Include="HospitalDjangoAPI\settings.py" />
@@ -37,9 +44,17 @@
     <Compile Include="HospitalDjangoAPI\wsgi.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="apps\atencion_ambulatoria\repositories.py" />
+    <Content Include="apps\mantenimiento_biomedico\__pycache__\apps.cpython-313.pyc" />
+    <Content Include="apps\__pycache__\__init__.cpython-313.pyc" />
     <Content Include="requirements.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="apps\" />
+    <Folder Include="apps\mantenimiento_biomedico\" />
+    <Folder Include="apps\mantenimiento_biomedico\__pycache__\" />
+    <Folder Include="apps\atencion_ambulatoria\" />
+    <Folder Include="apps\__pycache__\" />
     <Folder Include="HospitalDjangoAPI\" />
   </ItemGroup>
   <ItemGroup>
