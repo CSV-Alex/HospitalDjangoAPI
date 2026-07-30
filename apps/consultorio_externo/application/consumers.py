@@ -73,7 +73,7 @@ class RabbitMQConsumer:
         except json.JSONDecodeError as e:
             logger.error(f"Error al parsear JSON: {str(e)}")
             logger.error(f"Contenido: {body}")
-            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
+            ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
         
         except DomainException as e:
             logger.error(f"Error de validación de negocio: {str(e)}")
