@@ -112,6 +112,8 @@ Aplicación BPM: Se debe exponer como Application Page / Living Application en B
 8. **Actualizar reporte** — tarea de servicio/script (Operador) que actualiza el estado del reporte en el sistema.
 9. **Enviar a reemplazo** (evento de fin) — cierra el proceso.
 
+![Diagrama del proceso de Mantenimiento Biomédico](assets/proceso-mantenimiento.png)
+
 Servicios REST (OpenAPI / Swagger)
 ---------------------------------
 La API está documentada con OpenAPI y disponible en `/swagger/` al ejecutar el servidor.
@@ -217,6 +219,8 @@ Entidad principal: Reporte
 - equipo_id (Integer, opcional): FK al equipo biomédico
 
 Documentación Swagger disponible en `/swagger/mantenimiento/`.
+
+![Swagger UI del módulo Mantenimiento Biomédico](assets/mant-swagger.png)
 
 Integración con RabbitMQ (detalles importantes)
 ----------------------------------------------

@@ -44,7 +44,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/mantenimiento/', include('apps.mantenimiento_biomedico.interfaces.urls')),
     path('api/consultorio/', include('apps.consultorio_externo.presentation.urls')),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('swagger/mantenimiento/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path(
         'swagger/consultorio/',
         schema_view_consultorio.with_ui('swagger', cache_timeout=0),
