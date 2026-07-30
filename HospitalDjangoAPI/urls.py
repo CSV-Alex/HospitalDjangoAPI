@@ -26,5 +26,5 @@ urlpatterns = [
     path('', include('apps.admision_hospitalizacion.urls')),
     path('admin/', admin.site.urls),
     path('api/mantenimiento/', include('apps.mantenimiento_biomedico.interfaces.urls')),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('swagger/mantenimiento/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
