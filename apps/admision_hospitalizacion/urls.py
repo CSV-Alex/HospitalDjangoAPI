@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from .presentation import views
 
 urlpatterns = [
     path('api/ordenes/recepcionar/', views.recepcionar_orden, name='recepcionar_orden'),
@@ -8,4 +8,7 @@ urlpatterns = [
     path('api/ordenes/<int:orden_id>/iniciar-hospitalizacion/', views.iniciar_hospitalizacion, name='iniciar_hospitalizacion'),
     path('api/ordenes/', views.listar_ordenes, name='listar_ordenes'),
     path('api/hospitalizaciones/<int:hospitalizacion_id>/', views.obtener_hospitalizacion, name='obtener_hospitalizacion'),
+    
+    # Nuevo endpoint para hospitalización directa vía REST
+    path('api/hospitalizacion/', views.procesar_solicitud_hospitalizacion_api, name='procesar_hospitalizacion'),
 ]
