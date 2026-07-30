@@ -24,9 +24,9 @@ class Command(BaseCommand):
                 self.style.WARNING('Consumer detenido')
             )
         
-        except Exception as e:
+        except Exception:
             self.stdout.write(
-                self.style.ERROR(f'Error: {str(e)}')
+                self.style.ERROR('Error en el consumer')
             )
-            logger.error(f"Error en el consumer: {str(e)}", exc_info=True)
+            logger.exception("Error en el consumer")
             raise
