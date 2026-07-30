@@ -24,7 +24,7 @@ class EquipoBio(models.Model):
 
 class Reporte(models.Model):
     equipo = models.ForeignKey(
-        EquipoBio, on_delete=models.CASCADE,
+        EquipoBio, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='reportes', db_column='equipo_id',
     )
     descripcion_falla = models.TextField(db_column='descripcion')
@@ -32,6 +32,8 @@ class Reporte(models.Model):
     estado = models.CharField(max_length=20, default='reportado')
     isEvaluated = models.BooleanField(default=False, db_column='is_evaluated')
     isRepairable = models.BooleanField(default=False, db_column='is_repairable')
+    repair_successful = models.BooleanField(default=True)
+    external_id = models.CharField(max_length=100, null=True, blank=True, unique=True)
 
     class Meta:
         db_table = 'mb_reporte_equipo'

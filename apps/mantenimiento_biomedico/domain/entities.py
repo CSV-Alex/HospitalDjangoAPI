@@ -31,4 +31,6 @@ class Reporte:
     fecha_reporte: Optional[datetime] = None
     isEvaluated: bool = False
     isRepairable: bool = False
+    repairSuccessful: bool = True
+    external_id: Optional[str] = None
     estado: EstadoReporte = EstadoReporte.REPORTADO

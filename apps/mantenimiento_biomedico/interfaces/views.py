@@ -73,16 +73,13 @@ class ReporteView(APIView):
         return Response([ReporteSer(r).data for r in _reporte_repo.find_all()])
 
     def post(self, request):
-        equipo_id = request.data.get('equipo_id')
-        if not equipo_id:
-            return Response({"error": "El campo 'equipo_id' es requerido"}, status=400)
-
-        if not _repo.find_by_id(equipo_id):
-            return Response({"error": f"No existe equipo con id '{equipo_id}'"}, status=404)
-
         descripcion_falla = request.data.get('descripcion_falla')
         if not descripcion_falla:
             return Response({"error": "El campo 'descripcion_falla' es requerido"}, status=400)
+
+        equipo_id = request.data.get('equipo_id')
+        if equipo_id and not _repo.find_by_id(equipo_id):
+            return Response({"error": f"No existe equipo con id '{equipo_id}'"}, status=404)
 
         r = Reporte(
             equipo_id=equipo_id,
@@ -94,6 +91,30 @@ class ReporteView(APIView):
             return Response(ReporteSer(saved).data, status=201)
         except Exception as e:
             return Response({"error": f"Error al guardar: {str(e)}"}, status=500)
+
+    def patch(self, request, pk):
+        r = _reporte_repo.find_by_id(pk)
+        if not r:
+            return Response({"error": "Reporte no encontrado"}, status=404)
+
+        data = request.data
+
+        updated = Reporte(
+            id=r.id, equipo_id=request.data.get('equipo_id', r.equipo_id),
+            equipo_codigo=r.equipo_codigo, equipo_nombre=r.equipo_nombre,
+            descripcion_falla=data.get('descripcion_falla', r.descripcion_falla),
+            fecha_reporte=r.fecha_reporte,
+            isEvaluated=data.get('isEvaluated', r.isEvaluated),
+            isRepairable=data.get('isRepairable', r.isRepairable),
+            repairSuccessful=data.get('repairSuccessful', r.repairSuccessful),
+            external_id=data.get('external_id', r.external_id),
+            estado=r.estado,
+        )
+        try:
+            saved = _reporte_repo.save(updated)
+            return Response(ReporteSer(saved).data)
+        except Exception as e:
+            return Response({"error": f"Error al actualizar: {str(e)}"}, status=500)
 
 
 class EvaluarView(APIView):

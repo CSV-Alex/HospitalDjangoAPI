@@ -27,6 +27,10 @@ class IReporteRepo(ABC):
         pass
 
     @abstractmethod
+    def find_by_external_id(self, external_id: str) -> Optional[Reporte]:
+        pass
+
+    @abstractmethod
     def find_all(self) -> List[Reporte]:
         pass
 

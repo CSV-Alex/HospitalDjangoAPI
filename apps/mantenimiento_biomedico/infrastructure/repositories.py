@@ -59,12 +59,14 @@ class ReporteRepo(IReporteRepo):
     def _to_entity(m: ReporteModel) -> Reporte:
         return Reporte(
             id=m.id, equipo_id=m.equipo_id,
-            equipo_codigo=m.equipo.codigo,
-            equipo_nombre=m.equipo.nombre,
+            equipo_codigo=m.equipo.codigo if m.equipo else "",
+            equipo_nombre=m.equipo.nombre if m.equipo else "",
             descripcion_falla=m.descripcion_falla,
             fecha_reporte=m.fecha_reporte,
             isEvaluated=m.isEvaluated,
             isRepairable=m.isRepairable,
+            repairSuccessful=m.repair_successful,
+            external_id=m.external_id,
             estado=EstadoReporte(m.estado),
         )
 
@@ -75,6 +77,8 @@ class ReporteRepo(IReporteRepo):
         m.estado = r.estado.value
         m.isEvaluated = r.isEvaluated
         m.isRepairable = r.isRepairable
+        m.repair_successful = r.repairSuccessful
+        m.external_id = r.external_id
         m.save()
         return self._to_entity(m)
 
@@ -84,8 +88,17 @@ class ReporteRepo(IReporteRepo):
         except ReporteModel.DoesNotExist:
             return None
 
+    def find_by_external_id(self, external_id: str) -> Optional[Reporte]:
+        try:
+            return self._to_entity(ReporteModel.objects.select_related('equipo').get(external_id=external_id))
+        except ReporteModel.DoesNotExist:
+            return None
+
     def find_all(self) -> List[Reporte]:
         return [
             self._to_entity(m)
             for m in ReporteModel.objects.select_related('equipo').all()
         ]
+
+    def delete(self, r_id: int) -> None:
+        ReporteModel.objects.get(id=r_id).delete()
