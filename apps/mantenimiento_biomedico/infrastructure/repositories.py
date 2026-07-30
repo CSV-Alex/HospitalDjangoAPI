@@ -6,7 +6,7 @@ from apps.mantenimiento_biomedico.infrastructure.models import (
 from apps.mantenimiento_biomedico.domain.entities import EquipoBio, Reporte
 from apps.mantenimiento_biomedico.domain.repository_interfaces import IEquipoRepo, IReporteRepo
 from apps.mantenimiento_biomedico.domain.enums import (
-    TipoEquipo, EstadoEq,
+    TipoEquipo, EstadoEq, EstadoReporte,
 )
 
 
@@ -46,9 +46,6 @@ class EquipoRepo(IEquipoRepo):
     def find_all(self) -> List[EquipoBio]:
         return [self._to_entity(m) for m in EquipoBioModel.objects.all()]
 
-    def delete(self, eq_id: int) -> None:
-        EquipoBioModel.objects.filter(id=eq_id).delete()
-
     def find_by_codigo(self, codigo: str) -> Optional[EquipoBio]:
         try:
             return self._to_entity(EquipoBioModel.objects.get(codigo=codigo))
@@ -62,22 +59,38 @@ class ReporteRepo(IReporteRepo):
     def _to_entity(m: ReporteModel) -> Reporte:
         return Reporte(
             id=m.id, equipo_id=m.equipo_id,
-            equipo_codigo=m.equipo.codigo,
-            equipo_nombre=m.equipo.nombre,
+            equipo_codigo=m.equipo.codigo if m.equipo else "",
+            equipo_nombre=m.equipo.nombre if m.equipo else "",
             descripcion_falla=m.descripcion_falla,
             fecha_reporte=m.fecha_reporte,
+            isEvaluated=m.isEvaluated,
+            isRepairable=m.isRepairable,
+            repairSuccessful=m.repair_successful,
+            external_id=m.external_id,
+            estado=EstadoReporte(m.estado),
         )
 
     def save(self, r: Reporte) -> Reporte:
         m = ReporteModel.objects.get(id=r.id) if r.id else ReporteModel()
         m.equipo_id = r.equipo_id
         m.descripcion_falla = r.descripcion_falla
+        m.estado = r.estado.value
+        m.isEvaluated = r.isEvaluated
+        m.isRepairable = r.isRepairable
+        m.repair_successful = r.repairSuccessful
+        m.external_id = r.external_id
         m.save()
         return self._to_entity(m)
 
     def find_by_id(self, r_id: int) -> Optional[Reporte]:
         try:
             return self._to_entity(ReporteModel.objects.select_related('equipo').get(id=r_id))
+        except ReporteModel.DoesNotExist:
+            return None
+
+    def find_by_external_id(self, external_id: str) -> Optional[Reporte]:
+        try:
+            return self._to_entity(ReporteModel.objects.select_related('equipo').get(external_id=external_id))
         except ReporteModel.DoesNotExist:
             return None
 
@@ -88,4 +101,4 @@ class ReporteRepo(IReporteRepo):
         ]
 
     def delete(self, r_id: int) -> None:
-        ReporteModel.objects.filter(id=r_id).delete()
+        ReporteModel.objects.get(id=r_id).delete()

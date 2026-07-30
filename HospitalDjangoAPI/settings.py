@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_yasg',
     'apps.admision_hospitalizacion',
     'apps.mantenimiento_biomedico',
     'apps.consultorio_externo',
@@ -206,3 +207,4 @@ RABBITMQ_VHOST = os.environ.get('RABBITMQ_VHOST', '/')
 # Colas de RabbitMQ
 RABBITMQ_QUEUE_SOLICITUD_CONSULTORIO = 'solicitud_consultorio'
 RABBITMQ_QUEUE_EVENTO_CONSULTORIO = 'evento_consultorio_completado'
+RABBITMQ_QUEUE_MANTENIMIENTO = 'mantenimiento_reporte'
