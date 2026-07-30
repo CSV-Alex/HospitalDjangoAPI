@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # 'atencion_ambulatoria',
     'apps.admision_hospitalizacion',
     'apps.mantenimiento_biomedico',
+    "apps.farmacia.apps.FarmaciaConfig",
 ]
 
 # Middleware framework
