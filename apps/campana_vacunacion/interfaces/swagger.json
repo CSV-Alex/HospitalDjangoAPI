@@ -1,0 +1,559 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Vacunacion Campaign API (Campana de Vacunación)",
+    "description": "API REST de Servicios de Campaña de Vacunación con Integración a Bonita BPM y Gestión de Inventario.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000/api/vacunacion",
+      "description": "Servidor Local Django"
+    }
+  ],
+  "tags": [
+    { "name": "Vacunas", "description": "Gestión de catálogo de vacunas" },
+    { "name": "Lotes e Inventario", "description": "Gestión de lotes de vacunas y control de inventario" },
+    { "name": "Campanas", "description": "Gestión de campañas de vacunación" },
+    { "name": "Registros", "description": "Registro de aplicaciones de vacunas" },
+    { "name": "Población", "description": "Gestión de población objetivo" },
+    { "name": "Integración Bonita BPM", "description": "Flujos de trabajo y tareas integradas con Bonita BPM" }
+  ],
+  "paths": {
+    "/vacunas/": {
+      "get": {
+        "tags": ["Vacunas"],
+        "summary": "Listar todas las vacunas",
+        "responses": {
+          "200": {
+            "description": "Lista de vacunas obtenida con éxito",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Vacuna" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vacunas/crear/": {
+      "post": {
+        "tags": ["Vacunas"],
+        "summary": "Crear una nueva vacuna",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/VacunaInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Vacuna creada con éxito" },
+          "400": { "description": "Datos de entrada inválidos" }
+        }
+      }
+    },
+    "/vacunas/{vacuna_id}/": {
+      "get": {
+        "tags": ["Vacunas"],
+        "summary": "Obtener vacuna por ID",
+        "parameters": [
+          { "name": "vacuna_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Detalles de la vacuna" },
+          "404": { "description": "Vacuna no encontrada" }
+        }
+      }
+    },
+    "/vacunas/{vacuna_id}/actualizar/": {
+      "put": {
+        "tags": ["Vacunas"],
+        "summary": "Actualizar datos de una vacuna",
+        "parameters": [
+          { "name": "vacuna_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/VacunaInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Vacuna actualizada correctamente" },
+          "404": { "description": "Vacuna no encontrada" }
+        }
+      }
+    },
+    "/vacunas/{vacuna_id}/eliminar/": {
+      "delete": {
+        "tags": ["Vacunas"],
+        "summary": "Eliminar una vacuna",
+        "parameters": [
+          { "name": "vacuna_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Vacuna eliminada correctamente" }
+        }
+      }
+    },
+    "/lotes/": {
+      "get": {
+        "tags": ["Lotes e Inventario"],
+        "summary": "Listar todos los lotes de vacunas",
+        "responses": {
+          "200": {
+            "description": "Lista de lotes e inventario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Lote" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/lotes/crear/": {
+      "post": {
+        "tags": ["Lotes e Inventario"],
+        "summary": "Crear un nuevo lote de vacunas",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/LoteInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Lote creado con éxito" }
+        }
+      }
+    },
+    "/lotes/vacuna/{vacuna_id}/": {
+      "get": {
+        "tags": ["Lotes e Inventario"],
+        "summary": "Listar lotes por ID de vacuna",
+        "parameters": [
+          { "name": "vacuna_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Lotes asociados a la vacuna" }
+        }
+      }
+    },
+    "/campanas/": {
+      "get": {
+        "tags": ["Campanas"],
+        "summary": "Listar todas las campañas",
+        "responses": {
+          "200": { "description": "Lista de campañas" }
+        }
+      }
+    },
+    "/campanas/crear/": {
+      "post": {
+        "tags": ["Campanas"],
+        "summary": "Crear nueva campaña de vacunación",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CampanaInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Campaña creada con éxito" }
+        }
+      }
+    },
+    "/campanas/{campana_id}/": {
+      "get": {
+        "tags": ["Campanas"],
+        "summary": "Obtener campaña por ID",
+        "parameters": [
+          { "name": "campana_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Detalles de la campaña" }
+        }
+      }
+    },
+    "/registros/": {
+      "get": {
+        "tags": ["Registros"],
+        "summary": "Listar todos los registros de vacunación",
+        "responses": {
+          "200": { "description": "Lista de registros" }
+        }
+      }
+    },
+    "/registros/crear/": {
+      "post": {
+        "tags": ["Registros"],
+        "summary": "Registrar vacunación",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegistroInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Vacunación registrada con éxito" }
+        }
+      }
+    },
+    "/registros/campana/{campana_id}/": {
+      "get": {
+        "tags": ["Registros"],
+        "summary": "Listar registros por campaña",
+        "parameters": [
+          { "name": "campana_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Registros de la campaña" }
+        }
+      }
+    },
+    "/poblaciones/crear/": {
+      "post": {
+        "tags": ["Población"],
+        "summary": "Crear grupo de población objetivo",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/PoblacionInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Población creada" }
+        }
+      }
+    },
+    "/poblaciones/campana/{campana_id}/": {
+      "get": {
+        "tags": ["Población"],
+        "summary": "Listar poblaciones por campaña",
+        "parameters": [
+          { "name": "campana_id", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": {
+          "200": { "description": "Grupos poblacionales de la campaña" }
+        }
+      }
+    },
+    "/bonita/campanas/crear/": {
+      "post": {
+        "tags": ["Integración Bonita BPM"],
+        "summary": "Crear campaña e iniciar proceso en Bonita BPM",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CampanaInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Proceso de campaña iniciado en Bonita" }
+        }
+      }
+    },
+    "/bonita/campanas/{campana_id}/{bonita_instance_id}/": {
+      "get": {
+        "tags": ["Integración Bonita BPM"],
+        "summary": "Obtener estado de campaña en Bonita",
+        "parameters": [
+          { "name": "campana_id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "bonita_instance_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Estado del proceso y tareas en Bonita" }
+        }
+      }
+    },
+    "/bonita/registros/crear/": {
+      "post": {
+        "tags": ["Integración Bonita BPM"],
+        "summary": "Registrar vacunación desde Bonita (actualiza inventario de lote)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RegistroBonitaInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Vacunación registrada y stock descontado en inventario" }
+        }
+      }
+    },
+    "/bonita/registros/campana/{campana_id}/{bonita_instance_id}/": {
+      "get": {
+        "tags": ["Integración Bonita BPM"],
+        "summary": "Listar registros de vacunación de la campaña desde Bonita",
+        "parameters": [
+          { "name": "campana_id", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "bonita_instance_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Registros de la campaña en Bonita" }
+        }
+      }
+    },
+    "/bonita/inventario/actualizar/": {
+      "post": {
+        "tags": ["Integración Bonita BPM", "Lotes e Inventario"],
+        "summary": "Actualizar inventario de lote desde petición de Bonita BPM",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ActualizarInventarioBonitaInput" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Inventario actualizado correctamente" },
+          "400": { "description": "Error en actualización o stock insuficiente" }
+        }
+      }
+    },
+    "/bonita/tareas/{bonita_instance_id}/": {
+      "get": {
+        "tags": ["Integración Bonita BPM"],
+        "summary": "Obtener tareas pendientes de una instancia en Bonita",
+        "parameters": [
+          { "name": "bonita_instance_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Lista de tareas en Bonita" }
+        }
+      }
+    },
+    "/bonita/tareas/{bonita_instance_id}/{task_id}/completar/": {
+      "post": {
+        "tags": ["Integración Bonita BPM"],
+        "summary": "Completar tarea de campaña en Bonita",
+        "parameters": [
+          { "name": "bonita_instance_id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "task_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "revision_aprobada": { "type": "boolean", "default": true },
+                  "comentarios": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Tarea completada con éxito" }
+        }
+      }
+    },
+    "/bonita/flujo/inicializar/": {
+      "post": {
+        "tags": ["Integración Bonita BPM"],
+        "summary": "Inicializar flujo de campaña completo",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CampanaInput" }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Flujo inicializado en Bonita BPM" }
+        }
+      }
+    },
+    "/bonita/flujo/{bonita_instance_id}/estado/": {
+      "get": {
+        "tags": ["Integración Bonita BPM"],
+        "summary": "Obtener estado general del flujo de campaña",
+        "parameters": [
+          { "name": "bonita_instance_id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Estado general del flujo" }
+        }
+      }
+    },
+    "/bonita/procesos/": {
+      "get": {
+        "tags": ["Integración Bonita BPM"],
+        "summary": "Listar procesos disponibles en Bonita BPM",
+        "responses": {
+          "200": { "description": "Lista de procesos registrados en Bonita" }
+        }
+      }
+    },
+    "/bonita/instancias/": {
+      "get": {
+        "tags": ["Integración Bonita BPM"],
+        "summary": "Listar instancias activas de proceso",
+        "responses": {
+          "200": { "description": "Instancias de proceso activas" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TipoVacuna": {
+        "type": "string",
+        "enum": ["ARN", "VIRAL", "BACTERIANA", "TOXOIDE", "VIVA", "INACTIVADA", "OTROS"]
+      },
+      "EstadoLote": {
+        "type": "string",
+        "enum": ["DISP", "EN_USO", "AGOTADO", "VENCIDO"]
+      },
+      "EstadoCampana": {
+        "type": "string",
+        "enum": ["PLANIF", "EN_CURSO", "SUSP", "FINALIZ"]
+      },
+      "EstadoRegistro": {
+        "type": "string",
+        "enum": ["PEND", "COMPLETO", "REACCADV", "CONTRAINDICADO"]
+      },
+      "Vacuna": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "nombre": { "type": "string" },
+          "tipo": { "$ref": "#/components/schemas/TipoVacuna" },
+          "fabricante": { "type": "string" },
+          "descripcion": { "type": "string" },
+          "tempconserv_min": { "type": "number", "format": "float" },
+          "tempconserv_max": { "type": "number", "format": "float" }
+        }
+      },
+      "VacunaInput": {
+        "type": "object",
+        "required": ["nombre", "tipo", "fabricante"],
+        "properties": {
+          "nombre": { "type": "string" },
+          "tipo": { "$ref": "#/components/schemas/TipoVacuna" },
+          "fabricante": { "type": "string" },
+          "descripcion": { "type": "string" },
+          "tempconserv_min": { "type": "number", "format": "float", "default": 2.0 },
+          "tempconserv_max": { "type": "number", "format": "float", "default": 8.0 }
+        }
+      },
+      "Lote": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "vacuna_id": { "type": "integer" },
+          "num_lote": { "type": "string" },
+          "fecha_fab": { "type": "string", "format": "date" },
+          "fecha_venc": { "type": "string", "format": "date" },
+          "cantidad": { "type": "integer" },
+          "cantidad_usada": { "type": "integer" },
+          "estado": { "$ref": "#/components/schemas/EstadoLote" }
+        }
+      },
+      "LoteInput": {
+        "type": "object",
+        "required": ["vacuna_id", "num_lote", "fecha_fab", "fecha_venc", "cantidad"],
+        "properties": {
+          "vacuna_id": { "type": "integer" },
+          "num_lote": { "type": "string" },
+          "fecha_fab": { "type": "string", "format": "date" },
+          "fecha_venc": { "type": "string", "format": "date" },
+          "cantidad": { "type": "integer" }
+        }
+      },
+      "CampanaInput": {
+        "type": "object",
+        "required": ["nombre", "vacuna_id", "responsable", "fecha_inicio", "fecha_fin"],
+        "properties": {
+          "nombre": { "type": "string" },
+          "descripcion": { "type": "string" },
+          "objetivo": { "type": "string" },
+          "poblacion_objetivo": { "type": "string" },
+          "vacuna_id": { "type": "integer" },
+          "responsable": { "type": "string" },
+          "fecha_inicio": { "type": "string", "format": "date" },
+          "fecha_fin": { "type": "string", "format": "date" }
+        }
+      },
+      "RegistroInput": {
+        "type": "object",
+        "required": ["campana_id", "nombres", "apellidos", "cedula", "lote_id"],
+        "properties": {
+          "campana_id": { "type": "integer" },
+          "nombres": { "type": "string" },
+          "apellidos": { "type": "string" },
+          "cedula": { "type": "string" },
+          "edad": { "type": "integer" },
+          "sexo": { "type": "string" },
+          "lote_id": { "type": "integer" },
+          "sitio_vacunacion": { "type": "string" },
+          "personal_vacunador": { "type": "string" },
+          "observaciones": { "type": "string" }
+        }
+      },
+      "RegistroBonitaInput": {
+        "type": "object",
+        "required": ["campana_id", "bonita_instance_id", "nombres", "apellidos", "cedula", "lote_id"],
+        "properties": {
+          "campana_id": { "type": "integer" },
+          "bonita_instance_id": { "type": "string" },
+          "nombres": { "type": "string" },
+          "apellidos": { "type": "string" },
+          "cedula": { "type": "string" },
+          "edad": { "type": "integer" },
+          "sexo": { "type": "string" },
+          "lote_id": { "type": "integer" },
+          "sitio_vacunacion": { "type": "string" },
+          "personal_vacunador": { "type": "string" },
+          "observaciones": { "type": "string" }
+        }
+      },
+      "ActualizarInventarioBonitaInput": {
+        "type": "object",
+        "required": ["lote_id"],
+        "properties": {
+          "lote_id": { "type": "integer" },
+          "cantidad_usada": { "type": "integer", "default": 1 },
+          "bonita_instance_id": { "type": "string" }
+        }
+      },
+      "PoblacionInput": {
+        "type": "object",
+        "required": ["campana_id", "descripcion", "cantidad_estimada"],
+        "properties": {
+          "campana_id": { "type": "integer" },
+          "grupo_edad_min": { "type": "integer", "default": 0 },
+          "grupo_edad_max": { "type": "integer", "default": 150 },
+          "descripcion": { "type": "string" },
+          "cantidad_estimada": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

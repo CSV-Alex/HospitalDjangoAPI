@@ -23,7 +23,18 @@ from apps.campana_vacunacion.interfaces.views import (
     listar_poblaciones_por_campana,
 )
 
+from apps.campana_vacunacion.interfaces.swagger_views import (
+    swagger_json_view,
+    swagger_ui_view,
+)
+
 urlpatterns = [
+    # ========================================================================
+    # SWAGGER / OPENAPI DOCUMENTATION
+    # ========================================================================
+    path('swagger/', swagger_ui_view, name='swagger_ui'),
+    path('swagger.json', swagger_json_view, name='swagger_json'),
+
     # ========================================================================
     # ENDPOINTS MOCK (sin Bonita)
     # ========================================================================
@@ -59,3 +70,4 @@ urlpatterns = [
     # ========================================================================
     path('', include('apps.campana_vacunacion.interfaces.bonita_urls')),
 ]
+
