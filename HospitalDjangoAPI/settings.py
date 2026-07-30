@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_yasg',
     'apps.admision_hospitalizacion',
     'apps.mantenimiento_biomedico',
     'apps.consultorio_externo',
