@@ -28,8 +28,13 @@ class EquipoSer(serializers.Serializer):
 
 class ReporteSer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
-    equipo_id = serializers.IntegerField()
+    equipo_id = serializers.IntegerField(required=False, allow_null=True)
     equipo_codigo = serializers.CharField(read_only=True)
     equipo_nombre = serializers.CharField(read_only=True)
     descripcion_falla = serializers.CharField()
     fecha_reporte = serializers.DateTimeField(read_only=True)
+    estado = serializers.CharField(read_only=True, default='reportado')
+    isEvaluated = serializers.BooleanField(read_only=True, default=False)
+    isRepairable = serializers.BooleanField(read_only=True, default=False)
+    repairSuccessful = serializers.BooleanField(read_only=True, default=True)
+    external_id = serializers.CharField(read_only=True, required=False)
