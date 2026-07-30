@@ -33,7 +33,7 @@ Estructura principal del repositorio
 
 ```text
 apps/
-  consultorio_externo/         # Módulo principal (DDD por capas)
+  consultorio_externo/         # Módulo Consultorio Externo (DDD por capas)
     domain/                    # Entidades, ValueObjects, Factories, Exceptions
       entities.py
       value_objects.py
@@ -49,6 +49,20 @@ apps/
       views.py                 # Endpoints REST y schemas Swagger
       serializers.py
     models.py                  # Models Django (Paciente ORM)
+  mantenimiento_biomedico/     # Módulo Mantenimiento Biomédico (DDD)
+    domain/                    # Entidades, interfaces de repositorio
+      entities.py
+      repository_interfaces.py
+    application/               # Servicios de aplicación
+      services.py              # ProcesarReporteService
+    infrastructure/            # Modelos ORM, repositorios, RabbitMQ consumer
+      models.py
+      repositories.py
+      rabbitmq_consumer.py
+    interfaces/                # Vistas REST, serializers, URLs
+      views.py
+      serializers.py
+      urls.py
 manage.py
 requirements.txt
 db.sqlite3                     # Base de datos
@@ -66,7 +80,9 @@ Flujo de ejecución
 Principales procesos y componentes
 ---------------------------------------------------
 - Aplicación BPM: Se debe exponer como Application Page / Living Application en Bonitasoft y enlazar los conectores HTTP/RabbitMQ hacia este backend.
-- Procesos de negocio: El proyecto está pensado para que las tareas automáticas (service tasks) llamen al endpoint o envíen mensajes a la cola `solicitud_consultorio`. Al terminar, se publica el resultado en `evento_consultorio_completado`.
+- Procesos de negocio:
+  - **Consultorio Externo:** Las tareas automáticas (service tasks) llaman al endpoint o envían mensajes a la cola `solicitud_consultorio`. Al terminar, se publica el resultado en `evento_consultorio_completado`.
+  - **Mantenimiento Biomédico:** Bonita envía mensajes a la cola `mantenimiento_reporte` para crear o actualizar reportes de fallas de equipos biomédicos.
 
 Servicios REST (OpenAPI / Swagger)
 ---------------------------------
@@ -104,8 +120,54 @@ Recursos principales:
    - URL: /api/pacientes/{numero_historia_clinica}/
    - Respuesta: datos del paciente, edad calculada
 
+4. **Mantenimiento Biomédico - Reportes**
+   - **Propósito:** Gestión de reportes de fallas de equipos biomédicos. Integración con BonitaSoft vía RabbitMQ.
+   - **Operaciones:**
+
+     a. Listar reportes
+        - Método: GET
+        - URL: /api/mantenimiento/reportes/
+        - Respuesta: lista de reportes
+
+     b. Crear reporte
+        - Método: POST
+        - URL: /api/mantenimiento/reportes/
+        - Payload (ejemplo):
+          ```json
+          {
+            "descripcion_falla": "Pantalla no enciende",
+            "estado": "reportado",
+            "equipo_id": 1,
+            "external_id": "BONITA-123"
+          }
+          ```
+        - Respuestas:
+          - 201: reporte creado
+          - 400: error de validación
+
+     c. Obtener reporte por ID
+        - Método: GET
+        - URL: /api/mantenimiento/reportes/{id}/
+        - Respuesta: detalle del reporte
+
+     d. Actualizar reporte (parcial)
+        - Método: PATCH
+        - URL: /api/mantenimiento/reportes/{id}/
+        - Payload (ejemplo):
+          ```json
+          {
+            "estado": "reparado",
+            "repairSuccessful": true
+          }
+          ```
+        - Respuestas:
+          - 200: reporte actualizado
+          - 404: no encontrado
+
 Modelos relevantes
 ------------------
+
+### Consultorio Externo
 Entidad principal: Paciente (dominio y ORM)
 - id (UUID interno)
 - numero_historia_clinica (string)
@@ -114,13 +176,35 @@ Entidad principal: Paciente (dominio y ORM)
 - necesita_examen (boolean)
 - created_at / updated_at (timestamps en modelo ORM)
 
+### Mantenimiento Biomédico
+Entidad principal: Reporte
+- id (Integer PK)
+- descripcion_falla (Text)
+- fecha_reporte (DateTime, automático)
+- estado (String): reportado, evaluado, reparado, reemplazado, sin_accion
+- isEvaluated (Boolean)
+- isRepairable (Boolean)
+- repairSuccessful (Boolean)
+- external_id (String, único): ID de correlación con Bonita
+- equipo_id (Integer, opcional): FK al equipo biomédico
+
+Documentación Swagger disponible en `/swagger/mantenimiento/`.
+
 Integración con RabbitMQ (detalles importantes)
 ----------------------------------------------
+
+### Consultorio Externo
 - Producer (apps/consultorio_externo/infrastructure/rabbitmq_publisher.py)
   - Publica en la cola definida en la variable de settings `RABBITMQ_QUEUE_EVENTO_CONSULTORIO`.
   - POR COMPATIBILIDAD: publica el body como texto plano `"true"` o `"false"` (sin JSON) porque Bonitasoft interpreta arrays de strings a boolean con Boolean.valueOf().
 - Consumer (apps/consultorio_externo/application/consumers.py)
   - Escucha la cola `solicitud_consultorio` y procesa mensajes JSON entrantes.
+
+### Mantenimiento Biomédico
+- Consumer (apps/mantenimiento_biomedico/infrastructure/rabbitmq_consumer.py)
+  - Escucha la cola `mantenimiento_reporte`.
+  - Crea un reporte si el `external_id` no existe, o lo actualiza si ya existe (solo sobrescribe booleanos que lleguen como `false`).
+  - Comando para ejecutar: `python manage.py consume_mantenimiento`.
 
 Ejemplos de uso (curl)
 ----------------------
@@ -147,11 +231,21 @@ Ramas principales (ejemplo):
 
 Referencias de código (dónde buscar)
 ------------------------------------
+
+### Consultorio Externo
 - Lógica de dominio y validaciones: `apps/consultorio_externo/domain/`
 - Servicio de aplicación: `apps/consultorio_externo/application/services.py`
 - Publicador RabbitMQ: `apps/consultorio_externo/infrastructure/rabbitmq_publisher.py`
 - Endpoints y documentación Swagger: `apps/consultorio_externo/presentation/views.py`
 - Modelos ORM: `apps/consultorio_externo/models.py`
+
+### Mantenimiento Biomédico
+- Entidades e interfaces de repositorio: `apps/mantenimiento_biomedico/domain/`
+- Servicio de aplicación (procesar reportes): `apps/mantenimiento_biomedico/application/services.py`
+- Modelo ORM y repositorio: `apps/mantenimiento_biomedico/infrastructure/`
+- Consumer RabbitMQ: `apps/mantenimiento_biomedico/infrastructure/rabbitmq_consumer.py`
+- Endpoints REST y serializers: `apps/mantenimiento_biomedico/interfaces/`
+- Documentación Swagger: `/swagger/mantenimiento/`
 
 Ejecución local
 ------------------------
@@ -170,8 +264,9 @@ python manage.py migrate
 python manage.py runserver      # Swagger disponible en http://localhost:8000/swagger/
 ```
 
-Ejecutar el consumidor (terminal aparte):
+Ejecutar los consumidores (terminal aparte):
 ```bash
-python manage.py consume_rabbitmq
+python manage.py consume_consultorio   # Módulo Consultorio Externo
+python manage.py consume_mantenimiento # Módulo Mantenimiento Biomédico
 ```
 (Requiere RabbitMQ corriendo y variables RABBITMQ_* configuradas).

@@ -440,64 +440,48 @@ class ModelTests(TestCase):
 """
 
 
-def create_app():
-    # Crear directorio de la aplicación
-    if APP_PATH.exists():
-        print(f"⚠️  La carpeta {APP_PATH} ya existe. Se sobrescribirán los archivos.")
-    else:
-        APP_PATH.mkdir(parents=True, exist_ok=True)
-        print(f"✅ Carpeta creada: {APP_PATH}")
-
-    # Escribir archivos
-    for filename, content in FILES.items():
-        filepath = APP_PATH / filename
-        with open(filepath, 'w', encoding='utf-8') as f:
-            f.write(content)
-        print(f"   📄 Creado: {filepath}")
-
-    # Actualizar el urls.py principal
+def _update_main_urls():
     main_urls = BASE_DIR / "HospitalDjangoAPI" / "urls.py"
-    if main_urls.exists():
-        with open(main_urls, 'r', encoding='utf-8') as f:
-            content = f.read()
-
-        # Buscar si ya existe la inclusión
-        include_line = f"path('', include('apps.{APP_NAME}.urls')),"
-        if include_line not in content:
-            # Buscar el lugar adecuado (después de admin o al final de urlpatterns)
-            if 'urlpatterns = [' in content:
-                # Insertar antes del corchete de cierre
-                lines = content.splitlines()
-                new_lines = []
-                inserted = False
-                for line in lines:
-                    new_lines.append(line)
-                    if 'urlpatterns = [' in line and not inserted:
-                        # Añadir la nueva línea después de la apertura
-                        new_lines.append(f"    {include_line}")
-                        inserted = True
-                if not inserted:
-                    # Si no se encontró, añadir al final
-                    new_lines.append(f"urlpatterns += [\n    path('', include('apps.{APP_NAME}.urls')),\n]")
-                new_content = "\n".join(new_lines)
-                # También asegurarse de importar include si no está
-                if 'from django.urls import include' not in new_content:
-                    new_content = new_content.replace(
-                        'from django.urls import path',
-                        'from django.urls import path, include'
-                    )
-                with open(main_urls, 'w', encoding='utf-8') as f:
-                    f.write(new_content)
-                print(f"✅ Actualizado {main_urls} con la inclusión de rutas.")
-            else:
-                print("⚠️  No se pudo actualizar automáticamente el urls.py. Debes agregar manualmente:")
-                print(f"   path('', include('apps.{APP_NAME}.urls')),")
-        else:
-            print("ℹ️  La inclusión de rutas ya existe en urls.py.")
-    else:
+    if not main_urls.exists():
         print(f"⚠️  No se encontró el archivo {main_urls}. Debes agregar manualmente la inclusión de rutas.")
+        return
 
-    # Mensajes finales
+    with open(main_urls, 'r', encoding='utf-8') as f:
+        content = f.read()
+
+    include_line = f"path('', include('apps.{APP_NAME}.urls')),"
+    if include_line in content:
+        print("ℹ️  La inclusión de rutas ya existe en urls.py.")
+        return
+
+    if 'urlpatterns = [' not in content:
+        print("⚠️  No se pudo actualizar automáticamente el urls.py. Debes agregar manualmente:")
+        print(f"   {include_line}")
+        return
+
+    lines = content.splitlines()
+    new_lines = []
+    inserted = False
+    for line in lines:
+        new_lines.append(line)
+        if 'urlpatterns = [' in line and not inserted:
+            new_lines.append(f"    {include_line}")
+            inserted = True
+    if not inserted:
+        new_lines.append(f"urlpatterns += [\n    {include_line}\n]")
+
+    new_content = "\n".join(new_lines)
+    if 'from django.urls import include' not in new_content:
+        new_content = new_content.replace(
+            'from django.urls import path',
+            'from django.urls import path, include'
+        )
+    with open(main_urls, 'w', encoding='utf-8') as f:
+        f.write(new_content)
+    print(f"✅ Actualizado {main_urls} con la inclusión de rutas.")
+
+
+def _print_final_message():
     print("\n" + "="*50)
     print("✅ Generación completada.")
     print("Ahora ejecuta los siguientes comandos:")
@@ -507,6 +491,23 @@ def create_app():
     print("   4. python manage.py runserver")
     print("\nRecuerda agregar datos de prueba (camas) desde el admin o mediante fixtures.")
     print("="*50)
+
+
+def create_app():
+    if APP_PATH.exists():
+        print(f"⚠️  La carpeta {APP_PATH} ya existe. Se sobrescribirán los archivos.")
+    else:
+        APP_PATH.mkdir(parents=True, exist_ok=True)
+        print(f"✅ Carpeta creada: {APP_PATH}")
+
+    for filename, content in FILES.items():
+        filepath = APP_PATH / filename
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(content)
+        print(f"   📄 Creado: {filepath}")
+
+    _update_main_urls()
+    _print_final_message()
 
 
 if __name__ == "__main__":

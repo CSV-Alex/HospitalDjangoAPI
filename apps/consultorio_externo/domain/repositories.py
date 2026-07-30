@@ -22,7 +22,7 @@ class PacienteRepository(ABC):
         pass
     
     @abstractmethod
-    def find_all() -> List[Paciente]:
+    def find_all(self) -> List[Paciente]:
         pass
     
     @abstractmethod
