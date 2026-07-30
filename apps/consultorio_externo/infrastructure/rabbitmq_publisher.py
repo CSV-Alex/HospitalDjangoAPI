@@ -16,16 +16,14 @@ class RabbitMQPublisher:
         self.queue = settings.RABBITMQ_QUEUE_EVENTO_CONSULTORIO
         
         logger.info(
-            f"RabbitMQ Publisher inicializado: {self.host}:{self.port} "
-            f"(cola: {self.queue})"
+            "RabbitMQ Publisher inicializado: %s:%s (cola: %s)",
+            self.host, self.port, self.queue
         )
     
     def publicar_resultado(self, necesita_examen: bool) -> None:
         mensaje = "true" if necesita_examen else "false"
         
-        logger.info(
-            f"Publicando resultado a RabbitMQ (cola: {self.queue}): {mensaje}"
-        )
+        logger.info("Publicando resultado a RabbitMQ (cola: %s): %s", self.queue, mensaje)
         
         try:
             credentials = pika.PlainCredentials(self.username, self.password)
@@ -54,17 +52,18 @@ class RabbitMQPublisher:
                 ),
             )
             
-            logger.info(f"Mensaje publicado exitosamente: {mensaje}")
+            logger.info("Mensaje publicado exitosamente: %s", mensaje)
             
             connection.close()
         
-        except pika.exceptions.AMQPConnectionError as e:
-            logger.error(
-                f"Error de conexión a RabbitMQ: {str(e)}. "
-                f"Verifica que RabbitMQ esté corriendo en {self.host}:{self.port}"
+        except pika.exceptions.AMQPConnectionError:
+            logger.exception(
+                "Error de conexión a RabbitMQ. "
+                "Verifica que esté corriendo en %s:%s",
+                self.host, self.port
             )
             raise
         
-        except Exception as e:
-            logger.error(f"Error al publicar resultado: {str(e)}", exc_info=True)
+        except Exception:
+            logger.exception("Error al publicar resultado")
             raise

@@ -1,12 +1,18 @@
 import json
 import logging
 import pika
+import time
 from django.conf import settings
 from .services import RegistrarConsultaService
 from ..domain.exceptions import DomainException
 
 logger = logging.getLogger(__name__)
 
+RABBITMQ_CONNECTION_RETRIES = 5
+RABBITMQ_RETRY_DELAY = 2
+RABBITMQ_SOCKET_TIMEOUT = 5.0
+RABBITMQ_RECONNECT_WAIT = 5
+PREFETCH_COUNT = 1
 
 class RabbitMQConsumer:
     
@@ -21,8 +27,8 @@ class RabbitMQConsumer:
         self.service = RegistrarConsultaService()
         
         logger.info(
-            f"RabbitMQ Consumer inicializado: {self.host}:{self.port} "
-            f"(cola entrada: {self.queue_entrada})"
+            "RabbitMQ Consumer inicializado: %s:%s (cola entrada: %s)",
+            self.host, self.port, self.queue_entrada
         )
     
     def conectar(self):
@@ -35,9 +41,9 @@ class RabbitMQConsumer:
                 port=self.port,
                 virtual_host=self.vhost,
                 credentials=credentials,
-                connection_attempts=5,
-                retry_delay=2,
-                socket_timeout=5.0,
+                connection_attempts=RABBITMQ_CONNECTION_RETRIES,
+                retry_delay=RABBITMQ_RETRY_DELAY,
+                socket_timeout=RABBITMQ_SOCKET_TIMEOUT,
             )
             
             connection = pika.BlockingConnection(connection_params)
@@ -47,9 +53,9 @@ class RabbitMQConsumer:
             return connection, channel
         
         except pika.exceptions.AMQPConnectionError as e:
-            logger.error(
-                f"Error de conexión a RabbitMQ: {str(e)}. "
-                f"Verifica que RabbitMQ esté corriendo en {self.host}:{self.port}"
+            logger.exception(
+                "Error de conexión a RabbitMQ. Verifica que esté corriendo en %s:%s",
+                self.host, self.port
             )
             raise
     
@@ -57,11 +63,11 @@ class RabbitMQConsumer:
         try:
             # Decodificar el mensaje
             mensaje_string = body.decode('utf-8')
-            logger.info(f"Mensaje recibido: {mensaje_string}")
+            logger.info("Mensaje recibido: %s", mensaje_string)
             
             # Parsear JSON
             datos = json.loads(mensaje_string)
-            logger.info(f"Datos parseados: {datos}")
+            logger.info("Datos parseados: %s", datos)
             
             # Procesar con el Servicio de Aplicación
             self.service.registrar_consulta(datos)
@@ -71,16 +77,15 @@ class RabbitMQConsumer:
             logger.info("Mensaje procesado y confirmado (ACK)")
         
         except json.JSONDecodeError as e:
-            logger.error(f"Error al parsear JSON: {str(e)}")
-            logger.error(f"Contenido: {body}")
+            logger.exception("Error al parsear JSON. Contenido: %s", body)
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
         
         except DomainException as e:
-            logger.error(f"Error de validación de negocio: {str(e)}")
+            logger.exception("Error de validación de negocio")
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
         
         except Exception as e:
-            logger.error(f"Error inesperado al procesar mensaje: {str(e)}", exc_info=True)
+            logger.exception("Error inesperado al procesar mensaje")
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
     
     def escuchar(self):
@@ -89,7 +94,7 @@ class RabbitMQConsumer:
             connection, channel = self.conectar()
             
             channel.queue_declare(queue=self.queue_entrada, durable=True)
-            logger.info(f"Cola declarada: {self.queue_entrada}")
+            logger.info("Cola declarada: %s", self.queue_entrada)
             
             channel.basic_qos(prefetch_count=1)
             
@@ -99,17 +104,15 @@ class RabbitMQConsumer:
                 on_message_callback=self.procesar_mensaje,
             )
             
-            logger.info(f"Escuchando la cola: {self.queue_entrada}")
+            logger.info("Escuchando la cola: %s", self.queue_entrada)
             logger.info("Presiona Ctrl+C para detener el consumer")
             
             # Iniciar a escuchar
             channel.start_consuming()
         
         except pika.exceptions.AMQPConnectionError as e:
-            logger.error(f"Conexión perdida: {str(e)}")
-            logger.info("Reintentando en 5 segundos...")
-            import time
-            time.sleep(5)
+            logger.exception("Conexión perdida. Reintentando en %s segundos", RABBITMQ_RECONNECT_WAIT)
+            time.sleep(RABBITMQ_RECONNECT_WAIT)
             self.escuchar()
         
         except KeyboardInterrupt:
@@ -118,7 +121,7 @@ class RabbitMQConsumer:
                 connection.close()
         
         except Exception as e:
-            logger.error(f"Error fatal: {str(e)}", exc_info=True)
+            logger.exception("Error fatal en el consumer")
             if connection and not connection.is_closed:
                 connection.close()
             raise
