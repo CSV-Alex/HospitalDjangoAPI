@@ -15,7 +15,7 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS('Iniciando Consumer de RabbitMQ para mantenimiento')
         )
-        self.stdout.write('  Escuchando mensajes de Bonita en cola: mantenimiento_reporte')
+        self.stdout.write('  Escuchando mensajes de Bonita en cola: reportes')
         self.stdout.write('  Presiona Ctrl+C para detener\n')
 
         try:
