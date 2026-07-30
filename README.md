@@ -79,10 +79,60 @@ Flujo de ejecución
 
 Principales procesos y componentes
 ---------------------------------------------------
-- Aplicación BPM: Se debe exponer como Application Page / Living Application en Bonitasoft y enlazar los conectores HTTP/RabbitMQ hacia este backend.
-- Procesos de negocio:
-  - **Consultorio Externo:** Las tareas automáticas (service tasks) llaman al endpoint o envían mensajes a la cola `solicitud_consultorio`. Al terminar, se publica el resultado en `evento_consultorio_completado`.
-  - **Mantenimiento Biomédico:** Bonita envía mensajes a la cola `mantenimiento_reporte` para crear o actualizar reportes de fallas de equipos biomédicos.
+Aplicación BPM: Se debe exponer como Application Page / Living Application en Bonitasoft y enlazar los conectores HTTP/RabbitMQ hacia este backend.
+
+### 1. Proceso: Atención Médica — Consultorios Externos
+
+1. **Registrar llegada** (Tarea humana — Enfermería): captura datos del paciente.
+2. **Verificar identidad** (Tarea automática): comprobación en sistema.
+3. **Triaje / Signos vitales** (Tarea humana — Enfermería).
+4. **Evaluación y diagnóstico** (Tarea humana — Médico Especialista).
+5. **Decisión automática:** determinar si se requieren exámenes.
+6. En caso de requerir exámenes, se invoca el subproceso **MuestrasDeLaboratorio**.
+7. **Registro final:** Registrar Historia Clínica en el sistema (Tarea automática que publica mensaje en RabbitMQ).
+
+**Orquestador global (arquitectura guiada por eventos):**
+- Orquestador inicia Proceso Consultorio vía Call Activity.
+- Publica en la cola `solicitud_consultorio` para que el backend (Django) lo consuma.
+- Escucha la cola `evento_consultorio_completado` (conector Consume Message) esperando respuesta (`"true"` / `"false"`).
+
+### 2. Proceso: Mantenimiento Biomédico — Reporte de Fallas
+
+1. **Falla en equipo** (evento de inicio) — el Operador detecta la falla.
+2. **Reportar falla** — el Operador registra el incidente (tarea de usuario).
+3. **Enviar respuesta a Django** — tarea de servicio/script que envía la información al backend Django.
+4. **Evaluar equipo** — el Técnico revisa el equipo defectuoso (tarea de usuario).
+5. **Gateway: ¿Requiere reparación?**
+   - Sí → pasa a **Reparar equipo**
+   - No → va directo a **Actualizar reporte** (el equipo no necesita reparación)
+6. **Reparar equipo** — el Técnico realiza la reparación (tarea de usuario).
+7. **Gateway: ¿Reparación exitosa?**
+   - Sí → el flujo va al evento final **Enviar a reemplazo** (el equipo no se pudo salvar y se envía a reemplazo/baja)
+   - No → regresa a **Actualizar reporte** (se documenta el intento fallido)
+8. **Actualizar reporte** — tarea de servicio/script (Operador) que actualiza el estado del reporte en el sistema.
+9. **Enviar a reemplazo** (evento de fin) — cierra el proceso.
+
+## Elementos BPMN utilizados
+
+### Consultorio Externo
+- **Modelo de Datos (BDM):** Paciente, Cita, Triaje, HistoriaClinica, PeticionPrueba.
+- **Contratos:** cada tarea humana tiene contrato (ej. PacienteInput con nombre, fecha de nacimiento, etc.).
+- **Roles:** Enfermería, Médico Especialista, Sistema de Información.
+- **UI Forms:** formularios HTML5 personalizados por tarea.
+- **Tareas automáticas:** validaciones internas y conectores con el broker.
+- **Eventos:** publicación/consumo de mensajes con RabbitMQ.
+- **Subprocesos y CallActivity:** invocación a MuestrasDeLaboratorio.
+
+### Mantenimiento Biomédico
+- **Modelo de Datos (BDM):**
+  - `descripcion_falla` (string) — descripción del incidente reportado.
+  - `isRepairable` (booleano) — indica si el equipo requiere reparación.
+  - `repairSuccessful` (booleano) — indica si la reparación fue exitosa.
+- **Contratos:** ReporteFallaInput con descripcion_falla, equipo_id, external_id.
+- **Roles:** Operador, Técnico de Mantenimiento, Sistema de Información.
+- **UI Forms:** formularios HTML5 para reportar falla, evaluar equipo y actualizar reporte.
+- **Tareas automáticas:** envío de datos a Django (RabbitMQ) y actualización de reportes.
+- **Eventos:** consumo de mensajes desde la cola `mantenimiento_reporte`.
 
 Servicios REST (OpenAPI / Swagger)
 ---------------------------------
