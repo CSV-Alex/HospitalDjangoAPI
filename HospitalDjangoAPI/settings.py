@@ -206,3 +206,4 @@ RABBITMQ_VHOST = os.environ.get('RABBITMQ_VHOST', '/')
 # Colas de RabbitMQ
 RABBITMQ_QUEUE_SOLICITUD_CONSULTORIO = 'solicitud_consultorio'
 RABBITMQ_QUEUE_EVENTO_CONSULTORIO = 'evento_consultorio_completado'
+RABBITMQ_QUEUE_MANTENIMIENTO = 'mantenimiento_reporte'
