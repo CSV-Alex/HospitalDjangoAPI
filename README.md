@@ -77,6 +77,8 @@ Flujo de ejecución
 4. Se persiste mediante el repositorio Django (infrastructure.repositories).
 5. Se publica el resultado a RabbitMQ con el publicador `RabbitMQPublisher` como texto plano `"true"` o `"false"` (importante: Bonitasoft requiere texto literal).
 
+![Arquitectura del sistema](assets/arquitectura.svg)
+
 Principales procesos y componentes
 ---------------------------------------------------
 Aplicación BPM: Se debe exponer como Application Page / Living Application en Bonitasoft y enlazar los conectores HTTP/RabbitMQ hacia este backend.
@@ -234,7 +236,7 @@ Integración con RabbitMQ (detalles importantes)
 
 ### Mantenimiento Biomédico
 - Consumer (apps/mantenimiento_biomedico/infrastructure/rabbitmq_consumer.py)
-  - Escucha la cola `mantenimiento_reporte`.
+  - Escucha la cola `reportes`.
   - Crea un reporte si el `external_id` no existe, o lo actualiza si ya existe (solo sobrescribe booleanos que lleguen como `false`).
   - Comando para ejecutar: `python manage.py consume_mantenimiento`.
 
@@ -260,6 +262,8 @@ Ramas principales (ejemplo):
 - `main` — entrega final estable
 - `development` — integración y estado actual (branch con información oficial)
 - `feature/consultorios-externos-ddd-rabbitmq` — desarrollo del módulo consultorio externo
+
+![Tablero de gestión de tareas](assets/tablero.png)
 
 Referencias de código (dónde buscar)
 ------------------------------------
